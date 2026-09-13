@@ -2,44 +2,732 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
 <title>Super Adventure</title>
 
 <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  user-select: none;
-  -webkit-user-select: none;
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  touch-action:none;
 }
 
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #111;
-  font-family: Arial, sans-serif;
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#55cfff;
 }
 
-#game {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  background: linear-gradient(#55c8ff 0%, #a8edff 70%, #e8faff 100%);
+canvas{
+  display:block;
+  width:100%;
+  height:100%;
 }
 
-/* AWAN */
-.cloud {
-  position: absolute;
-  width: 90px;
-  height: 30px;
-  background: white;
-  border-radius: 30px;
-  opacity: .9;
+#controls{
+  position:fixed;
+  bottom:20px;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:space-between;
+  padding:0 20px;
+  z-index:10;
 }
 
-.cloud::before,
-.cloud::after {
- 
+.group{
+  display:flex;
+  gap:12px;
+}
+
+button{
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  border:3px solid white;
+  background:rgba(0,0,0,.45);
+  color:white;
+  font-size:28px;
+  font-weight:bold;
+}
+
+#jump{
+  width:85px;
+  height:85px;
+  font-size:17px;
+}
+
+#start{
+  position:fixed;
+  inset:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.45);
+}
+
+.box{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  text-align:center;
+  font-family:Arial;
+}
+
+.box h1{
+  margin-bottom:10px;
+}
+
+.box button{
+  width:auto;
+  height:auto;
+  border:0;
+  border-radius:10px;
+  background:#e52b2b;
+  padding:12px 25px;
+  margin-top:15px;
+  font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="start">
+  <div class="box">
+    <h1>⭐ SUPER ADVENTURE ⭐</h1>
+    <p>Kumpulkan koin dan sampai ke bendera!</p>
+    <button onclick="startGame()">MULAI</button>
+  </div>
+</div>
+
+<div id="controls">
+  <div class="group">
+    <button id="left">◀</button>
+    <button id="right">▶</button>
+  </div>
+
+  <button id="jump">JUMP</button>
+</div>
+
+<script>
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let W,H;
+
+function resize(){
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+resize();
+window.addEventListener("resize",resize);
+
+
+/* =====================
+   GAME
+===================== */
+
+let running=false;
+
+let player={
+  x:100,
+  y:0,
+  w:38,
+  h:55,
+  vx:0,
+  vy:0,
+  ground:false
+};
+
+let camera=0;
+let score=0;
+let lives=3;
+
+const gravity=.7;
+const speed=5;
+const jumpPower=13;
+
+let keys={
+  left:false,
+  right:false
+};
+
+
+/* =====================
+   LEVEL
+===================== */
+
+const platforms=[
+  {x:450,y:390,w:180,h:25},
+  {x:800,y:310,w:170,h:25},
+  {x:1150,y:400,w:220,h:25},
+  {x:1500,y:330,w:180,h:25},
+  {x:1850,y:400,w:220,h:25},
+  {x:2250,y:280,w:180,h:25},
+  {x:2600,y:370,w:250,h:25},
+  {x:3050,y:300,w:180,h:25},
+  {x:3450,y:400,w:250,h:25},
+  {x:3900,y:310,w:180,h:25},
+  {x:4300,y:390,w:250,h:25}
+];
+
+let coins=[
+  {x:500,y:340,taken:false},
+  {x:560,y:340,taken:false},
+  {x:840,y:260,taken:false},
+  {x:900,y:260,taken:false},
+  {x:1200,y:350,taken:false},
+  {x:1280,y:350,taken:false},
+  {x:1540,y:280,taken:false},
+  {x:1910,y:350,taken:false},
+  {x:2300,y:230,taken:false},
+  {x:2660,y:320,taken:false},
+  {x:2730,y:320,taken:false},
+  {x:3110,y:250,taken:false},
+  {x:3500,y:350,taken:false},
+  {x:3970,y:260,taken:false},
+  {x:4380,y:340,taken:false}
+];
+
+let enemies=[
+  {x:700,y:0,w:40,h:35,vx:-1.5,dead:false},
+  {x:1400,y:0,w:40,h:35,vx:1.5,dead:false},
+  {x:1780,y:0,w:40,h:35,vx:-1.5,dead:false},
+  {x:2500,y:0,w:40,h:35,vx:1.5,dead:false},
+  {x:3300,y:0,w:40,h:35,vx:-1.5,dead:false},
+  {x:4200,y:0,w:40,h:35,vx:1.5,dead:false}
+];
+
+const finishX=4750;
+
+
+/* =====================
+   START
+===================== */
+
+function startGame(){
+
+  document.getElementById("start").style.display="none";
+
+  score=0;
+  lives=3;
+
+  resetPlayer();
+
+  running=true;
+
+  requestAnimationFrame(loop);
+}
+
+function resetPlayer(){
+
+  player.x=100;
+  player.y=H-150;
+  player.vx=0;
+  player.vy=0;
+}
+
+
+/* =====================
+   INPUT KEYBOARD
+===================== */
+
+document.addEventListener("keydown",e=>{
+
+  if(e.key==="ArrowLeft" || e.key==="a")
+    keys.left=true;
+
+  if(e.key==="ArrowRight" || e.key==="d")
+    keys.right=true;
+
+  if(e.key==="ArrowUp" ||
+     e.key===" " ||
+     e.key==="w"){
+    jump();
+  }
+
+});
+
+document.addEventListener("keyup",e=>{
+
+  if(e.key==="ArrowLeft" || e.key==="a")
+    keys.left=false;
+
+  if(e.key==="ArrowRight" || e.key==="d")
+    keys.right=false;
+
+});
+
+
+/* =====================
+   TOUCH
+===================== */
+
+function hold(button,down,up){
+
+  button.addEventListener("touchstart",e=>{
+    e.preventDefault();
+    down();
+  });
+
+  button.addEventListener("touchend",e=>{
+    e.preventDefault();
+    up();
+  });
+
+  button.addEventListener("mousedown",down);
+  button.addEventListener("mouseup",up);
+}
+
+hold(
+  document.getElementById("left"),
+  ()=>keys.left=true,
+  ()=>keys.left=false
+);
+
+hold(
+  document.getElementById("right"),
+  ()=>keys.right=true,
+  ()=>keys.right=false
+);
+
+document.getElementById("jump")
+.addEventListener("touchstart",e=>{
+  e.preventDefault();
+  jump();
+});
+
+document.getElementById("jump")
+.addEventListener("mousedown",jump);
+
+
+function jump(){
+
+  if(player.ground){
+
+    player.vy=-jumpPower;
+
+    player.ground=false;
+  }
+}
+
+
+/* =====================
+   UPDATE
+===================== */
+
+function update(){
+
+  if(keys.left)
+    player.vx=-speed;
+  else if(keys.right)
+    player.vx=speed;
+  else
+    player.vx*=.8;
+
+  player.x+=player.vx;
+
+  if(player.x<0)
+    player.x=0;
+
+  player.vy+=gravity;
+
+  player.y+=player.vy;
+
+  player.ground=false;
+
+
+  /* TANAH */
+
+  const groundY=H-80;
+
+  if(player.y+player.h>=groundY){
+
+    player.y=groundY-player.h;
+
+    player.vy=0;
+
+    player.ground=true;
+  }
+
+
+  /* PLATFORM */
+
+  for(let p of platforms){
+
+    const px=p.x-camera;
+    const py=p.y;
+
+    if(
+      player.x+player.w>p.x &&
+      player.x<p.x+p.w &&
+      player.y+player.h>=py &&
+      player.y+player.h<=py+25 &&
+      player.vy>=0
+    ){
+
+      player.y=py-player.h;
+
+      player.vy=0;
+
+      player.ground=true;
+    }
+  }
+
+
+  /* COIN */
+
+  for(let c of coins){
+
+    if(c.taken) continue;
+
+    if(
+      player.x<c.x+24 &&
+      player.x+player.w>c.x &&
+      player.y<c.y+24 &&
+      player.y+player.h>c.y
+    ){
+
+      c.taken=true;
+
+      score+=10;
+    }
+  }
+
+
+  /* MUSUH */
+
+  for(let e of enemies){
+
+    if(e.dead) continue;
+
+    e.x+=e.vx;
+
+    if(
+      player.x+player.w>e.x &&
+      player.x<e.x+e.w &&
+      player.y+player.h>e.y &&
+      player.y<e.y+e.h
+    ){
+
+      if(player.vy>0){
+
+        e.dead=true;
+
+        player.vy=-9;
+
+        score+=20;
+
+      }else{
+
+        lives--;
+
+        resetPlayer();
+
+        if(lives<=0){
+
+          alert("GAME OVER! Skor: "+score);
+
+          location.reload();
+        }
+      }
+    }
+  }
+
+
+  /* JATUH */
+
+  if(player.y>H+100){
+
+    lives--;
+
+    resetPlayer();
+
+    if(lives<=0){
+
+      alert("GAME OVER! Skor: "+score);
+
+      location.reload();
+    }
+  }
+
+
+  /* CAMERA */
+
+  camera=player.x-W*.4;
+
+  if(camera<0)
+    camera=0;
+
+
+  /* MENANG */
+
+  if(player.x>=finishX){
+
+    running=false;
+
+    setTimeout(()=>{
+      alert(
+        "🏆 KAMU MENANG!\n\n"+
+        "Skor: "+score
+      );
+
+      location.reload();
+
+    },100);
+  }
+}
+
+
+/* =====================
+   DRAW BACKGROUND
+===================== */
+
+function drawBackground(){
+
+  ctx.fillStyle="#55cfff";
+  ctx.fillRect(0,0,W,H);
+
+
+  /* awan */
+
+  ctx.fillStyle="white";
+
+  for(let i=0;i<8;i++){
+
+    let x=(i*550-camera*.25)%6000;
+
+    if(x<0)x+=6000;
+
+    ctx.beginPath();
+
+    ctx.arc(x,100,25,0,Math.PI*2);
+    ctx.arc(x+30,90,35,0,Math.PI*2);
+    ctx.arc(x+70,105,25,0,Math.PI*2);
+
+    ctx.fill();
+  }
+
+
+  /* bukit */
+
+  ctx.fillStyle="#55ad45";
+
+  for(let i=0;i<12;i++){
+
+    let x=i*500-camera*.4;
+
+    ctx.beginPath();
+
+    ctx.arc(x,H-70,180,Math.PI,0);
+
+    ctx.fill();
+  }
+}
+
+
+/* =====================
+   DRAW
+===================== */
+
+function draw(){
+
+  drawBackground();
+
+
+  /* TANAH */
+
+  ctx.fillStyle="#8b542b";
+
+  ctx.fillRect(0,H-80,W,80);
+
+  ctx.fillStyle="#42a52f";
+
+  ctx.fillRect(0,H-80,W,10);
+
+
+  /* PLATFORM */
+
+  for(let p of platforms){
+
+    let x=p.x-camera;
+
+    if(x+p.w<0 || x>W)
+      continue;
+
+    ctx.fillStyle="#42a52f";
+
+    ctx.fillRect(x,p.y-8,p.w,8);
+
+    ctx.fillStyle="#92552a";
+
+    ctx.fillRect(x,p.y,p.w,p.h);
+  }
+
+
+  /* COIN */
+
+  for(let c of coins){
+
+    if(c.taken) continue;
+
+    let x=c.x-camera;
+
+    if(x<0 || x>W)
+      continue;
+
+    ctx.fillStyle="#ffd21c";
+
+    ctx.beginPath();
+
+    ctx.arc(x+12,c.y+12,12,0,Math.PI*2);
+
+    ctx.fill();
+
+    ctx.strokeStyle="#d89400";
+
+    ctx.lineWidth=3;
+
+    ctx.stroke();
+  }
+
+
+  /* MUSUH */
+
+  for(let e of enemies){
+
+    if(e.dead)continue;
+
+    let x=e.x-camera;
+
+    ctx.fillStyle="#7b351e";
+
+    ctx.beginPath();
+
+    ctx.roundRect(x,e.y,e.w,e.h,12);
+
+    ctx.fill();
+
+    ctx.fillStyle="white";
+
+    ctx.fillRect(x+8,e.y+8,7,10);
+    ctx.fillRect(x+25,e.y+8,7,10);
+  }
+
+
+  /* FINISH */
+
+  let fx=finishX-camera;
+
+  ctx.fillStyle="#555";
+
+  ctx.fillRect(fx,H-260,8,180);
+
+  ctx.fillStyle="#22b52d";
+
+  ctx.beginPath();
+
+  ctx.moveTo(fx+8,H-250);
+
+  ctx.lineTo(fx+75,H-220);
+
+  ctx.lineTo(fx+8,H-190);
+
+  ctx.fill();
+
+
+  /* PLAYER */
+
+  let px=player.x-camera;
+  let py=player.y;
+
+  /* kaki */
+
+  ctx.fillStyle="#633716";
+
+  ctx.fillRect(px+3,py+45,14,10);
+  ctx.fillRect(px+23,py+45,14,10);
+
+  /* celana */
+
+  ctx.fillStyle="#2169d8";
+
+  ctx.fillRect(px+6,py+34,28,17);
+
+  /* badan */
+
+  ctx.fillStyle="#e52b2b";
+
+  ctx.fillRect(px+5,py+25,30,20);
+
+  /* kepala */
+
+  ctx.fillStyle="#f0a36a";
+
+  ctx.beginPath();
+
+  ctx.arc(px+21,py+19,16,0,Math.PI*2);
+
+  ctx.fill();
+
+  /* topi */
+
+  ctx.fillStyle="#e52b2b";
+
+  ctx.fillRect(px+2,py+2,38,10);
+
+  ctx.fillRect(px+8,py-3,27,8);
+
+  /* mata */
+
+  ctx.fillStyle="#111";
+
+  ctx.fillRect(px+13,py+15,4,6);
+  ctx.fillRect(px+25,py+15,4,6);
+
+
+  /* HUD */
+
+  ctx.fillStyle="white";
+
+  ctx.font="bold 20px Arial";
+
+  ctx.shadowColor="black";
+
+  ctx.shadowBlur=4;
+
+  ctx.fillText("🪙 "+score,20,35);
+
+  ctx.fillText("❤️ "+lives,W-100,35);
+
+  ctx.shadowBlur=0;
+}
+
+
+/* =====================
+   LOOP
+===================== */
+
+function loop(){
+
+  if(!running)return;
+
+  update();
+
+  draw();
+
+  requestAnimationFrame(loop);
+}
+
+</script>
+
+</body>
+</html>

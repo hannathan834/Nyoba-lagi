@@ -2,181 +2,326 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <title>Game Mobil</title>
 
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
-html,body{
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#55a832;
-    font-family:Arial,sans-serif;
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: #111;
 }
 
-#game{
-    width:100%;
-    height:100%;
-    position:relative;
-    overflow:hidden;
-    background:#55a832;
+#game {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #55a832;
+}
+
+/* LANGIT */
+#sky {
+    position: absolute;
+    width: 100%;
+    height: 35%;
+    top: 0;
+    background: linear-gradient(#4fc3f7, #d9f5ff);
 }
 
 /* JALAN */
-#road{
-    position:absolute;
-    width:82%;
-    height:100%;
-    left:9%;
-    top:0;
-    background:#444;
-    border-left:8px solid white;
-    border-right:8px solid white;
+#road {
+    position: absolute;
+    width: 80%;
+    max-width: 500px;
+    height: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #383838;
+    overflow: hidden;
+    border-left: 8px solid white;
+    border-right: 8px solid white;
 }
 
 /* GARIS JALAN */
-#roadLine{
-    position:absolute;
-    width:10px;
-    height:100%;
-    left:50%;
-    transform:translateX(-50%);
-    background:repeating-linear-gradient(
-        to bottom,
-        white 0px,
-        white 60px,
-        transparent 60px,
-        transparent 120px
-    );
-    animation:jalan .5s linear infinite;
+.roadLine {
+    position: absolute;
+    width: 10px;
+    height: 80px;
+    background: white;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
-@keyframes jalan{
-    from{background-position:0 0;}
-    to{background-position:0 120px;}
+/* SKOR */
+#scoreBox {
+    position: absolute;
+    z-index: 20;
+    top: 15px;
+    left: 15px;
+    padding: 10px 15px;
+    background: rgba(0,0,0,0.65);
+    color: white;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 /* MOBIL */
-#car{
-    position:absolute;
-    width:80px;
-    height:140px;
-    left:50%;
-    bottom:180px;
-    transform:translateX(-50%);
-    z-index:10;
-    transition:transform .1s;
+#car {
+    position: absolute;
+    z-index: 10;
+
+    width: 75px;
+    height: 135px;
+
+    left: 50%;
+    bottom: 170px;
+
+    transform: translateX(-50%);
 }
 
-/* BADAN */
-.body{
-    position:absolute;
-    width:70px;
-    height:130px;
-    left:5px;
-    top:5px;
-    background:#e60000;
-    border:3px solid #700000;
-    border-radius:18px;
+/* BADAN MOBIL */
+.carBody {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+    background: linear-gradient(
+        90deg,
+        #8b0000,
+        #ff2525,
+        #8b0000
+    );
+
+    border: 3px solid #550000;
+    border-radius: 20px 20px 12px 12px;
+
+    box-shadow: 0 5px 12px rgba(0,0,0,0.6);
 }
 
 /* KACA DEPAN */
-.front{
-    position:absolute;
-    width:48px;
-    height:38px;
-    left:11px;
-    top:15px;
-    background:#65cfff;
-    border:3px solid #222;
-    border-radius:10px;
+.frontWindow {
+    position: absolute;
+    top: 20px;
+    left: 11px;
+
+    width: 47px;
+    height: 38px;
+
+    background: #8bdcff;
+    border: 3px solid #222;
+    border-radius: 10px;
 }
 
 /* KACA BELAKANG */
-.back{
-    position:absolute;
-    width:48px;
-    height:28px;
-    left:11px;
-    bottom:15px;
-    background:#65cfff;
-    border:3px solid #222;
-    border-radius:7px;
+.backWindow {
+    position: absolute;
+    bottom: 18px;
+    left: 12px;
+
+    width: 45px;
+    height: 28px;
+
+    background: #21708e;
+    border: 3px solid #222;
+    border-radius: 6px;
+}
+
+/* LAMPU */
+.light {
+    position: absolute;
+    top: 7px;
+
+    width: 13px;
+    height: 9px;
+
+    background: #fff45c;
+    border-radius: 5px;
+}
+
+.light.left {
+    left: 8px;
+}
+
+.light.right {
+    right: 8px;
 }
 
 /* BAN */
-.wheel{
-    position:absolute;
-    width:13px;
-    height:35px;
-    background:#111;
-    border-radius:7px;
+.wheel {
+    position: absolute;
+
+    width: 12px;
+    height: 32px;
+
+    background: #111;
+    border-radius: 7px;
 }
 
-.w1{left:-6px;top:28px;}
-.w2{right:-6px;top:28px;}
-.w3{left:-6px;bottom:20px;}
-.w4{right:-6px;bottom:20px;}
-
-/* LAMPU */
-.lamp{
-    position:absolute;
-    width:13px;
-    height:9px;
-    background:#fff;
-    border-radius:4px;
-    top:4px;
+.wheel1 {
+    left: -7px;
+    top: 35px;
 }
 
-.l1{left:12px;}
-.l2{right:12px;}
+.wheel2 {
+    right: -7px;
+    top: 35px;
+}
+
+.wheel3 {
+    left: -7px;
+    bottom: 25px;
+}
+
+.wheel4 {
+    right: -7px;
+    bottom: 25px;
+}
+
+/* RINTANGAN */
+.obstacle {
+    position: absolute;
+    z-index: 8;
+
+    width: 55px;
+    height: 55px;
+
+    background: #222;
+
+    border: 5px solid #ffcc00;
+
+    border-radius: 10px;
+
+    box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+}
+
+/* POLA RINTANGAN */
+.obstacle::after {
+    content: "";
+    position: absolute;
+
+    width: 100%;
+    height: 10px;
+
+    top: 18px;
+    left: 0;
+
+    background: #ffcc00;
+}
 
 /* TOMBOL */
-#buttons{
-    position:absolute;
-    bottom:25px;
-    width:100%;
-    display:flex;
-    justify-content:center;
-    gap:30px;
-    z-index:20;
+.controls {
+    position: absolute;
+
+    z-index: 30;
+
+    width: 100%;
+
+    bottom: 25px;
+
+    display: flex;
+    justify-content: center;
+
+    gap: 25px;
 }
 
-button{
-    width:95px;
-    height:65px;
-    border:0;
-    border-radius:18px;
-    background:#111;
-    color:white;
-    font-size:38px;
-    font-weight:bold;
-    box-shadow:0 4px 10px #000;
+.controlButton {
+    width: 90px;
+    height: 65px;
+
+    border: none;
+    border-radius: 18px;
+
+    background: rgba(0,0,0,0.75);
+
+    color: white;
+
+    font-size: 38px;
+    font-weight: bold;
+
+    box-shadow: 0 5px 10px rgba(0,0,0,0.5);
 }
 
-button:active{
-    background:#777;
-    transform:scale(.94);
+.controlButton:active {
+    transform: scale(0.9);
+    background: #555;
 }
 
-/* JUDUL */
-#title{
-    position:absolute;
-    top:15px;
-    left:50%;
-    transform:translateX(-50%);
-    color:white;
-    background:#000b;
-    padding:8px 18px;
-    border-radius:12px;
-    z-index:30;
-    font-weight:bold;
+/* GAME OVER */
+#gameOver {
+    display: none;
+
+    position: absolute;
+
+    z-index: 50;
+
+    width: 100%;
+    height: 100%;
+
+    top: 0;
+    left: 0;
+
+    background: rgba(0,0,0,0.8);
+
+    color: white;
+
+    text-align: center;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-direction: column;
+}
+
+#gameOver h1 {
+    font-size: 42px;
+    margin-bottom: 15px;
+}
+
+#gameOver p {
+    font-size: 22px;
+    margin-bottom: 25px;
+}
+
+#restart {
+    padding: 14px 30px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: white;
+
+    color: black;
+
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* HP */
+@media (max-width: 600px) {
+
+    #road {
+        width: 82%;
+    }
+
+    #car {
+        width: 75px;
+        height: 135px;
+        bottom: 165px;
+    }
+
 }
 </style>
 </head>
@@ -185,137 +330,199 @@ button:active{
 
 <div id="game">
 
-    <div id="road">
-        <div id="roadLine"></div>
-    </div>
+    <!-- LANGIT -->
+    <div id="sky"></div>
 
-    <div id="title">🚗 GAME MOBIL</div>
+    <!-- JALAN -->
+    <div id="road"></div>
+
+    <!-- SKOR -->
+    <div id="scoreBox">
+        Jarak: <span id="score">0</span> m
+    </div>
 
     <!-- MOBIL -->
     <div id="car">
 
-        <div class="body">
+        <div class="carBody">
 
-            <div class="front"></div>
-            <div class="back"></div>
+            <div class="light left"></div>
+            <div class="light right"></div>
 
-            <div class="lamp l1"></div>
-            <div class="lamp l2"></div>
+            <div class="frontWindow"></div>
+            <div class="backWindow"></div>
+
+            <div class="wheel wheel1"></div>
+            <div class="wheel wheel2"></div>
+            <div class="wheel wheel3"></div>
+            <div class="wheel wheel4"></div>
 
         </div>
-
-        <div class="wheel w1"></div>
-        <div class="wheel w2"></div>
-        <div class="wheel w3"></div>
-        <div class="wheel w4"></div>
 
     </div>
 
     <!-- TOMBOL -->
-    <div id="buttons">
-        <button id="left">⬅️</button>
-        <button id="right">➡️</button>
+    <div class="controls">
+
+        <button class="controlButton" id="leftButton">
+            ⬅
+        </button>
+
+        <button class="controlButton" id="rightButton">
+            ➡
+        </button>
+
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="gameOver">
+
+        <h1>GAME OVER</h1>
+
+        <p>
+            Jarak: <span id="finalScore">0</span> m
+        </p>
+
+        <button id="restart">
+            MAIN LAGI
+        </button>
+
     </div>
 
 </div>
 
 <script>
 
-var car = document.getElementById("car");
+/* =========================
+   VARIABEL
+========================= */
 
-var posisi = 50;
-var arah = 0;
+const game = document.getElementById("game");
+const road = document.getElementById("road");
+const car = document.getElementById("car");
 
-function gerak(){
+const leftButton = document.getElementById("leftButton");
+const rightButton = document.getElementById("rightButton");
 
-    posisi = posisi + (arah * 0.7);
+const scoreText = document.getElementById("score");
+const gameOver = document.getElementById("gameOver");
+const finalScore = document.getElementById("finalScore");
+const restart = document.getElementById("restart");
 
-    if(posisi < 18){
-        posisi = 18;
+let carX = 50;
+
+let movingLeft = false;
+let movingRight = false;
+
+let score = 0;
+
+let gameRunning = true;
+
+let obstacles = [];
+
+let roadLines = [];
+
+
+/* =========================
+   GARIS JALAN
+========================= */
+
+function createRoadLines() {
+
+    for (let i = 0; i < 8; i++) {
+
+        const line = document.createElement("div");
+
+        line.className = "roadLine";
+
+        line.style.top = (i * 100) + "px";
+
+        road.appendChild(line);
+
+        roadLines.push({
+            element: line,
+            y: i * 100
+        });
+
     }
 
-    if(posisi > 82){
-        posisi = 82;
-    }
-
-    car.style.left = posisi + "%";
-
-    if(arah < 0){
-        car.style.transform =
-        "translateX(-50%) rotate(-12deg)";
-    }
-    else if(arah > 0){
-        car.style.transform =
-        "translateX(-50%) rotate(12deg)";
-    }
-    else{
-        car.style.transform =
-        "translateX(-50%) rotate(0deg)";
-    }
-
-    requestAnimationFrame(gerak);
 }
 
-/* KIRI */
-document.getElementById("left").addEventListener("touchstart",function(e){
+createRoadLines();
+
+
+/* =========================
+   MOBIL
+========================= */
+
+function moveCar() {
+
+    if (!gameRunning) return;
+
+    if (movingLeft) {
+        carX -= 0.8;
+    }
+
+    if (movingRight) {
+        carX += 0.8;
+    }
+
+    /* BATAS KIRI */
+    if (carX < 12) {
+        carX = 12;
+    }
+
+    /* BATAS KANAN */
+    if (carX > 88) {
+        carX = 88;
+    }
+
+    car.style.left = carX + "%";
+
+    /* MOBIL MIRING SAAT BELOK */
+
+    if (movingLeft) {
+
+        car.style.transform =
+            "translateX(-50%) rotate(-10deg)";
+
+    }
+    else if (movingRight) {
+
+        car.style.transform =
+            "translateX(-50%) rotate(10deg)";
+
+    }
+    else {
+
+        car.style.transform =
+            "translateX(-50%) rotate(0deg)";
+
+    }
+
+}
+
+
+/* =========================
+   TOMBOL KIRI
+========================= */
+
+function leftDown(e) {
+
     e.preventDefault();
-    arah = -1;
-});
 
-document.getElementById("left").addEventListener("touchend",function(){
-    arah = 0;
-});
+    movingLeft = true;
 
-document.getElementById("left").addEventListener("mousedown",function(){
-    arah = -1;
-});
+}
 
-document.getElementById("left").addEventListener("mouseup",function(){
-    arah = 0;
-});
+function leftUp(e) {
 
-/* KANAN */
-document.getElementById("right").addEventListener("touchstart",function(e){
     e.preventDefault();
-    arah = 1;
-});
 
-document.getElementById("right").addEventListener("touchend",function(){
-    arah = 0;
-});
+    movingLeft = false;
 
-document.getElementById("right").addEventListener("mousedown",function(){
-    arah = 1;
-});
+}
 
-document.getElementById("right").addEventListener("mouseup",function(){
-    arah = 0;
-});
-
-/* KEYBOARD */
-document.addEventListener("keydown",function(e){
-
-    if(e.key === "ArrowLeft"){
-        arah = -1;
-    }
-
-    if(e.key === "ArrowRight"){
-        arah = 1;
-    }
-
-});
-
-document.addEventListener("keyup",function(e){
-
-    if(e.key === "ArrowLeft" || e.key === "ArrowRight"){
-        arah = 0;
-    }
-
-});
-
-gerak();
-
-</script>
-
-</body>
-</html>
+leftButton.addEventListener("touchstart", leftDown);
+leftButton.addEventListener("touchend", leftUp);
+leftButton

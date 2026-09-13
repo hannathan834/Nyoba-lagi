@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Game Mobil</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #111;
+    font-family: Arial, sans-serif;
+    touch-action: none;
+}
+
+#game {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #4caf50;
+}
+
+/* Langit */
+#sky {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 35%;
+    background: linear-gradient(#62c8ff, #dff7ff);
+}
+
+/* Jalan */
+#road {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    width: 70%;
+    height: 100%;
+    background: #3b3b3b;
+    overflow: hidden;
+}
+
+/* Garis pinggir jalan */
+#road::before,
+#road::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    background: white;
+}
+
+#road::before {
+    left: 0;
+}
+
+#road::after {
+    right: 0;
+}
+
+/* Garis tengah jalan */
+.lines {
+    position: absolute;
+    left: 50%;
+    top: -100%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 200%;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 45px,
+        white 45px,
+        white 90px
+    );
+    animation: roadMove 0.7s linear infinite;
+}
+
+@keyframes roadMove {
+    from {
+        transform: translateX(-50%) translateY(0);
+    }
+    to {
+        transform: translateX(-50%) translateY(90px);
+    }
+}
+
+/* Mobil */
+#car {
+    position: absolute;
+    width: 85px;
+    height: 150px;
+    left: 50%;
+    bottom: 190px;
+    transform: translateX(-50%) rotate(0deg);
+    transition: transform 0.12s ease, left 0.08s linear;
+    z-index: 10;
+}
+
+/* Badan mobil */
+.car-body {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #b40000, #ff3030, #b40000);
+    border-radius: 22px 22px 14px 14px;
+    border: 3px solid #700000;
+    box-shadow: 0 5px 10px rgba(0,0,0,.5);
+}
+
+/* Kaca depan */
+.window {
+    position: absolute;
+    top: 22px;
+    left: 13px;
+    width: 59px;
+    height: 45px;
+    background: linear-gradient(135deg, #bdefff, #257da5);
+    border-radius: 13px 13px 7px 7px;
+    border: 3px solid #222;
+}
+
+/* Kaca belakang */
+.back-window {
+    position: absolute;
+    bottom: 23px;
+    left: 15px;
+    width: 55px;
+    height: 32px;
+    background: #276f91;
+    border-radius: 6px 6px 12px 12px;
+    border: 3px solid #222;
+}
+
+/* Lampu */
+.light {
+    position: absolute;
+    width: 15px;
+    height: 10px;
+    background: #fff36a;
+    border-radius: 5px;
+    top: 8px;
+}
+
+.light.left {
+    left: 10px;
+}
+
+.light.right {
+    right: 10px;
+}
+
+/* Ban */
+.wheel {
+    position: absolute;
+    width: 13px;
+    height: 37px;
+    background: #111;
+    border-radius: 8px;
+}
+
+.wheel.left {
+    left: -7px;
+    top: 38px;
+}
+
+.wheel.right {
+    right: -7px;
+    top: 38px;
+}
+
+.wheel.left2 {
+    left: -7px;
+    bottom: 28px;
+}
+
+.wheel.right2 {
+    right: -7px;
+    bottom: 28px;
+}
+
+/* Tombol */
+.controls {
+    position: absolute;
+    bottom: 25px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    z-index: 20;
+}
+
+.control-btn {
+    width: 90px;
+    height: 70px;
+    border: none;
+    border-radius: 20px;
+    background: rgba(0,0,0,.75);
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    box-shadow: 0 5px 12px rgba(0,0,0,.5);
+}
+
+.control-btn:active {
+    background: #555;
+    transform: scale(.94);
+}
+
+/* Skor */
+#score {
+    position: absolute
